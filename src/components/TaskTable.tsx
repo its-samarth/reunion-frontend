@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getTasks } from '@/services/authService';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHead,
+} from '@/components/ui/table';
 
 const TasksList = () => {
   const [tasks, setTasks] = useState<any>(null); // Allow tasks to be null initially
@@ -33,47 +41,47 @@ const TasksList = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  // Render the table directly from the object
   return (
     <div>
       <h1>User Tasks</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Task ID</th>
-            <th>Title</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Total Time (hrs)</th>
-            <th>Created At</th>
-            <th>Updated At</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Parse the tasks object */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Task ID</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Start Time</TableHead>
+            <TableHead>End Time</TableHead>
+            <TableHead>Total Time (hrs)</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Updated At</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {tasks && tasks.tasks ? (
             tasks.tasks.map((task: any) => (
-              <tr key={task._id}>
-                <td>{task._id}</td>
-                <td>{task.title}</td>
-                <td>{task.priority}</td>
-                <td>{task.status}</td>
-                <td>{task.startTime}</td>
-                <td>{task.endTime}</td>
-                <td>{task.totalTime}</td>
-                <td>{task.createdAt}</td>
-                <td>{task.updatedAt}</td>
-              </tr>
+              <TableRow key={task._id}>
+                <TableCell>{task._id}</TableCell>
+                <TableCell>{task.title}</TableCell>
+                <TableCell>{task.priority}</TableCell>
+                <TableCell>{task.status}</TableCell>
+                <TableCell>{new Date(task.startTime).toLocaleString()}</TableCell>
+                <TableCell>{new Date(task.endTime).toLocaleString()}</TableCell>
+                <TableCell>{task.totalTime}</TableCell>
+                <TableCell>{new Date(task.createdAt).toLocaleString()}</TableCell>
+                <TableCell>{new Date(task.updatedAt).toLocaleString()}</TableCell>
+              </TableRow>
             ))
           ) : (
-            <tr>
-              <td colSpan={9}>No tasks available</td>
-            </tr>
+            <TableRow>
+              <TableCell colSpan={9} className="text-center">
+                No tasks available
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };
