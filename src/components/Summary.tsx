@@ -1,4 +1,6 @@
 import React from "react";
+import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "./ui/table";
+import SummaryTable from "./SummaryTable";
 
 const Summary: React.FC = () => {
   const summaryData = {
@@ -73,31 +75,9 @@ const Summary: React.FC = () => {
       </div>
 
       <div style={styles.tableContainer}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Task priority</th>
-              <th style={styles.th}>Pending tasks</th>
-              <th style={styles.th}>Time lapsed (hrs)</th>
-              <th style={styles.th}>Time to finish (hrs)</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {taskPriorityData.map((row, index) => (
-              <tr
-                key={row.priority}
-                style={index % 2 === 0 ? styles.evenRow : styles.oddRow}
-              >
-                <td>{row.priority}</td>
-                <td>{row.pendingTasks}</td>
-                <td>{row.timeLapsed}</td>
-                <td>{row.timeToFinish}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      
+    </div>
+      <SummaryTable/> 
     </div>
   );
 };
@@ -159,6 +139,9 @@ const styles = {
   oddRow: {
     backgroundColor: "#ffffff",
   },
-};
+  
+   
+  };
+
 
 export default Summary;
