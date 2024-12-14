@@ -29,7 +29,8 @@ const TaskTable = () => {
   const [openModal, setOpenModal] = useState(false); // Manage modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeleteTasks, setSelectedDeleteTasks] = useState<string[]>([]);
-
+  console.log(tasks);
+  
   const handleClose = () => {
     setIsModalOpen(false);
   };

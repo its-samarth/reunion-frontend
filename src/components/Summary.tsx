@@ -1,28 +1,72 @@
-import React from "react";
-import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "./ui/table";
-import SummaryTable from "./SummaryTable";
+import { getDashboardData, getTasks } from "@/services/authService";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import SummaryTable from "./SummaryTable"; // Assuming this is another table component
 
 const Summary: React.FC = () => {
-  const summaryData = {
-    totalTasks: 25,
-    tasksCompleted: "40%",
-    tasksPending: "60%",
-    avgTimePerTask: "3.5 hrs",
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [dashboardData, setDashboardData] = useState<any>(null); // For storing processed dashboard data
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  // Function to fetch tasks from the backend
+  const refreshTasks = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("No token found, please log in first.");
+      return;
+    }
+
+    try {
+      const fetchedTasks = await getTasks(token);
+      console.log("Fetched Tasks:", fetchedTasks);
+      // Ensure fetchedTasks is an array, even if it's not
+      const tasksArray = Array.isArray(fetchedTasks)
+        ? fetchedTasks
+        : [fetchedTasks];
+      setTasks(tasksArray); // Set tasks in state
+    } catch (err) {
+      setError("Error fetching tasks.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const pendingTaskSummary = {
-    pendingTasks: 15,
-    totalTimeLapsed: "56 hrs",
-    totalTimeToFinish: "24 hrs",
-  };
+  // Fetch tasks on initial load
+  useLayoutEffect(() => {
+    refreshTasks();
+  }, []);
 
-  const taskPriorityData = [
-    { priority: 1, pendingTasks: 3, timeLapsed: 12, timeToFinish: 8 },
-    { priority: 2, pendingTasks: 5, timeLapsed: 6, timeToFinish: 3 },
-    { priority: 3, pendingTasks: 1, timeLapsed: 8, timeToFinish: 7 },
-    { priority: 4, pendingTasks: 0, timeLapsed: 0, timeToFinish: 0 },
-    { priority: 5, pendingTasks: 6, timeLapsed: 30, timeToFinish: 6 },
-  ];
+  // Fetch dashboard data when tasks are available
+  useLayoutEffect(() => {
+    if (tasks.length > 0) {
+      const fetchDashboardData = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const data = await getDashboardData(token, tasks); // Pass tasks to the service
+            console.log("Fetched Dashboard Data:", data);
+            setDashboardData(data?.data); // Set the returned dashboard data (from the 'data' property of the response)
+          } else {
+            setError("No token found, please log in first.");
+          }
+        } catch (err) {
+          setError("Error fetching dashboard data.");
+        }
+      };
+
+      fetchDashboardData();
+    }
+  }, [tasks]);
+
+  // Handle loading and error states
+  if (loading) {
+    return <div>Loading tasks...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div style={styles.container}>
@@ -30,19 +74,31 @@ const Summary: React.FC = () => {
         <h2 style={styles.header}>Summary</h2>
         <div style={styles.row}>
           <div style={styles.metric}>
-            <span style={styles.metricValue}>{summaryData.totalTasks}</span>
+            <span style={styles.metricValue}>
+              {dashboardData?.totalTasks || "N/A"}
+            </span>
             <span>Total tasks</span>
           </div>
           <div style={styles.metric}>
-            <span style={styles.metricValue}>{summaryData.tasksCompleted}</span>
-            <span>Tasks completed</span>
+            <span style={styles.metricValue}>
+              {dashboardData?.completedPercentage !== undefined
+                ? dashboardData?.completedPercentage
+                : "N/A"}
+            </span>
+            <span>Tasks completed (%)</span>
           </div>
           <div style={styles.metric}>
-            <span style={styles.metricValue}>{summaryData.tasksPending}</span>
-            <span>Tasks pending</span>
+            <span style={styles.metricValue}>
+              {dashboardData?.pendingPercentage || "N/A"}
+            </span>
+            <span>Tasks pending (%)</span>
           </div>
           <div style={styles.metric}>
-            <span style={styles.metricValue}>{summaryData.avgTimePerTask}</span>
+            <span style={styles.metricValue}>
+              {dashboardData?.averageCompletionTime !== undefined
+                ? dashboardData?.averageCompletionTime
+                : "N/A"}
+            </span>
             <span>Average time per completed task</span>
           </div>
         </div>
@@ -53,19 +109,20 @@ const Summary: React.FC = () => {
         <div style={styles.row}>
           <div style={styles.metric}>
             <span style={styles.metricValue}>
-              {pendingTaskSummary.pendingTasks}
+              {/* Assuming pendingTaskSummary will be available here */}
+              {dashboardData?.pendingTaskSummary?.pendingTasks || "N/A"}
             </span>
             <span>Pending tasks</span>
           </div>
           <div style={styles.metric}>
             <span style={styles.metricValue}>
-              {pendingTaskSummary.totalTimeLapsed}
+              {dashboardData?.pendingTaskSummary?.totalTimeLapsed || "N/A"}
             </span>
             <span>Total time lapsed</span>
           </div>
           <div style={styles.metric}>
             <span style={styles.metricValue}>
-              {pendingTaskSummary.totalTimeToFinish}
+              {dashboardData?.pendingTaskSummary?.totalTimeToFinish || "N/A"}
             </span>
             <span>Total time to finish</span>
             <div></div>
@@ -75,14 +132,14 @@ const Summary: React.FC = () => {
       </div>
 
       <div style={styles.tableContainer}>
-      
-    </div>
-      <SummaryTable/> 
+        <SummaryTable />
+      </div>
     </div>
   );
 };
 
-const styles = {
+// Updated styles with proper type declarations
+const styles: { [key: string]: React.CSSProperties } = {
   container: {
     padding: "20px",
     fontFamily: "Arial, sans-serif",
@@ -104,7 +161,7 @@ const styles = {
     flex: "1",
     textAlign: "center",
     margin: "10px",
-  } as React.CSSProperties,
+  },
   metricValue: {
     display: "block",
     fontSize: "24px",
@@ -118,30 +175,7 @@ const styles = {
   },
   tableContainer: {
     overflowX: "auto",
-  } as React.CSSProperties,
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-  } as React.CSSProperties,
-  th: {
-    backgroundColor: "#f4f4f4",
-    padding: "10px",
-    borderBottom: "2px solid #ddd",
   },
-  td: {
-    padding: "10px",
-    borderBottom: "1px solid #ddd",
-  },
-  evenRow: {
-    backgroundColor: "#f9f9f9",
-  },
-  oddRow: {
-    backgroundColor: "#ffffff",
-  },
-  
-   
-  };
-
+};
 
 export default Summary;

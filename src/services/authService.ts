@@ -78,3 +78,24 @@ export const deleteTask = async (token: string, taskId: string): Promise<any> =>
     throw error; // Re-throw the error to handle it in the calling function
   }
 };
+
+
+export const getDashboardData = async (token: string, taskData: any): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/dashboard`,  // API endpoint for dashboard
+      { tasks: taskData },  // Pass the task data in the body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token for authentication
+          "Content-Type": "application/json", // Specify content type for JSON
+        },
+      }
+    );
+
+    return response.data; // Return the response data, which will include dashboard statistics
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    throw error; // Rethrow the error to handle it in the calling function
+  }
+};

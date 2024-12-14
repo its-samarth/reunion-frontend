@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,13 +16,16 @@ interface AddTaskModalProps {
   onClose: () => void;
 }
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) => {
+const AddTaskModal: React.FC<AddTaskModalProps> = ({
+  refreshTasks,
+  onClose,
+}) => {
   const [formData, setFormData] = useState({
-    title: '',
+    title: "",
     priority: 1,
-    status: 'pending',
-    startTime: '',
-    endTime: '',
+    status: "pending",
+    startTime: "",
+    endTime: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +42,9 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      setError('No token found, please log in first.');
+      setError("No token found, please log in first.");
       return;
     }
 
@@ -51,12 +59,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
 
     try {
       const newTask = await setTasks(token, taskData);
-      setSuccess('Task created successfully!');
+      setSuccess("Task created successfully!");
       setError(null); // Reset error if successful
       refreshTasks(); // Refresh the task list after a new task is added
       onClose(); // Close the modal after success
     } catch (err) {
-      setError('Failed to create task.');
+      setError("Failed to create task.");
       setSuccess(null); // Reset success message if failed
     }
   };
@@ -68,7 +76,9 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
         style={{ backgroundColor: "rgba(255, 255, 255, 0.9)" }}
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold mb-4">Create New Task</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold mb-4">
+            Create New Task
+          </DialogTitle>
         </DialogHeader>
 
         {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -97,6 +107,9 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
               value={formData.priority || ""}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2"
+              min="1" // Minimum value allowed
+              max="5" // Maximum value allowed
+              step="1"
             />
           </div>
 
@@ -107,8 +120,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
               <span className="mr-2">Pending</span>
               {/* React Switch */}
               <ReactSwitch
-                checked={formData.status === "completed"}
-                onChange={(checked) => setFormData({ ...formData, status: checked ? "completed" : "pending" })}
+                checked={formData.status === "finished"}
+                onChange={(checked) =>
+                  setFormData({
+                    ...formData,
+                    status: checked ? "finished" : "pending",
+                  })
+                }
                 offColor="#d1d5db"
                 onColor="#4f46e5"
                 offHandleColor="#fff"
@@ -119,7 +137,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
                 uncheckedIcon={false}
                 checkedIcon={false}
               />
-              <span className="ml-2">Completed</span>
+              <span className="ml-2">Finished</span>
             </div>
           </div>
 

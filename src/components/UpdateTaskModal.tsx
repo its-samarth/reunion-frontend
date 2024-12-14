@@ -100,6 +100,9 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
               value={formData.priority || ""}
               onChange={handleChange}
               className="border border-gray-300 rounded-md p-2"
+              min="1" // Minimum value allowed
+              max="5" // Maximum value allowed
+              step="1"
             />
           </div>
 
