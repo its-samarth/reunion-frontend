@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { setTasks } from '@/services/authService';
 
-const SetTask = () => {
+const SetTask = ({ refreshTasks }: { refreshTasks: () => void }) => {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState(1);
   const [status, setStatus] = useState('pending');
@@ -32,6 +32,7 @@ const SetTask = () => {
       const newTask = await setTasks(token, taskData);
       setSuccess('Task created successfully!');
       setError(null); // Reset error if successful
+      refreshTasks(); // Refresh the task list after a new task is added
     } catch (err) {
       setError('Failed to create task.');
       setSuccess(null); // Reset success message if failed

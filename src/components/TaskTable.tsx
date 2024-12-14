@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getTasks } from '@/services/authService';
+// Import the SetTask component
 import {
   Table,
   TableHeader,
@@ -8,34 +9,38 @@ import {
   TableCell,
   TableHead,
 } from '@/components/ui/table';
+import SetTask from './SetTasks';
 
-const TasksList = () => {
+const TasksLists = () => {
   const [tasks, setTasks] = useState<any>(null); // Allow tasks to be null initially
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) throw new Error('No token found, please login first');
+  // Function to refresh the task list
+  const refreshTasks = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No token found, please log in first.');
+      return;
+    }
 
-        const fetchedTasks = await getTasks(token);
-        console.log('Fetched Tasks:', fetchedTasks); // Log the fetched object
-
-        if (fetchedTasks) {
-          setTasks(fetchedTasks); // Directly set the fetched object
-        } else {
-          throw new Error('No tasks found');
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      } finally {
-        setLoading(false);
+    try {
+      const fetchedTasks = await getTasks(token);
+      if (fetchedTasks) {
+        setTasks(fetchedTasks);
+      } else {
+        throw new Error('No tasks found');
       }
-    };
+    } catch (err) {
+      setError('Error fetching tasks.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchTasks();
+  // Fetch tasks on initial load
+  useEffect(() => {
+    refreshTasks();
   }, []);
 
   if (loading) return <div>Loading...</div>;
@@ -43,50 +48,40 @@ const TasksList = () => {
 
   return (
     <div>
-      <h1 className="text-xl font-bold mb-4">User Tasks Table</h1>
-      <Table className="table-auto border-collapse w-full">
-        <TableHeader className="bg-gray-800 text-white">
+      <h1>User Tasks</h1>
+      <SetTask refreshTasks={refreshTasks} /> {/* Pass refreshTasks as prop */}
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2 border">Sr No</TableHead>
-            <TableHead className="px-4 py-2 border">Title</TableHead>
-            <TableHead className="px-4 py-2 border">Priority</TableHead>
-            <TableHead className="px-4 py-2 border">Status</TableHead>
-            <TableHead className="px-4 py-2 border">Start Time</TableHead>
-            <TableHead className="px-4 py-2 border">End Time</TableHead>
-            <TableHead className="px-4 py-2 border">Total Time (hrs)</TableHead>
-            <TableHead className="px-4 py-2 border">Created At</TableHead>
-            <TableHead className="px-4 py-2 border">Updated At</TableHead>
+            <TableHead>Sr No</TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Start Time</TableHead>
+            <TableHead>End Time</TableHead>
+            <TableHead>Total Time (hrs)</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Updated At</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {tasks && tasks.tasks ? (
             tasks.tasks.map((task: any, index: number) => (
-              <TableRow
-                key={task._id}
-                className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
-              >
-                <TableCell className="px-4 py-2 border">{index + 1}</TableCell>
-                <TableCell className="px-4 py-2 border">{task.title}</TableCell>
-                <TableCell className="px-4 py-2 border">{task.priority}</TableCell>
-                <TableCell className="px-4 py-2 border">{task.status}</TableCell>
-                <TableCell className="px-4 py-2 border">
-                  {new Date(task.startTime).toLocaleString()}
-                </TableCell>
-                <TableCell className="px-4 py-2 border">
-                  {new Date(task.endTime).toLocaleString()}
-                </TableCell>
-                <TableCell className="px-4 py-2 border">{task.totalTime}</TableCell>
-                <TableCell className="px-4 py-2 border">
-                  {new Date(task.createdAt).toLocaleString()}
-                </TableCell>
-                <TableCell className="px-4 py-2 border">
-                  {new Date(task.updatedAt).toLocaleString()}
-                </TableCell>
+              <TableRow key={task._id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{task.title}</TableCell>
+                <TableCell>{task.priority}</TableCell>
+                <TableCell>{task.status}</TableCell>
+                <TableCell>{new Date(task.startTime).toLocaleString()}</TableCell>
+                <TableCell>{new Date(task.endTime).toLocaleString()}</TableCell>
+                <TableCell>{task.totalTime}</TableCell>
+                <TableCell>{new Date(task.createdAt).toLocaleString()}</TableCell>
+                <TableCell>{new Date(task.updatedAt).toLocaleString()}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={9} className="text-center px-4 py-2 border">
+              <TableCell colSpan={9} className="text-center">
                 No tasks available
               </TableCell>
             </TableRow>
@@ -97,4 +92,4 @@ const TasksList = () => {
   );
 };
 
-export default TasksList;
+export default TasksLists;

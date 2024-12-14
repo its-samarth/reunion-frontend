@@ -12,7 +12,6 @@ const TasksList = () => {
     <div>
       
       <TaskTable  /> 
-      <SetTask/>
       
     </div>
   );
