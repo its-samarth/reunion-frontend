@@ -43,39 +43,50 @@ const TasksList = () => {
 
   return (
     <div>
-      <h1>User Tasks</h1>
-      <Table>
-        <TableHeader>
+      <h1 className="text-xl font-bold mb-4">User Tasks Table</h1>
+      <Table className="table-auto border-collapse w-full">
+        <TableHeader className="bg-gray-800 text-white">
           <TableRow>
-            <TableHead>Task ID</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Start Time</TableHead>
-            <TableHead>End Time</TableHead>
-            <TableHead>Total Time (hrs)</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Updated At</TableHead>
+            <TableHead className="px-4 py-2 border">Sr No</TableHead>
+            <TableHead className="px-4 py-2 border">Title</TableHead>
+            <TableHead className="px-4 py-2 border">Priority</TableHead>
+            <TableHead className="px-4 py-2 border">Status</TableHead>
+            <TableHead className="px-4 py-2 border">Start Time</TableHead>
+            <TableHead className="px-4 py-2 border">End Time</TableHead>
+            <TableHead className="px-4 py-2 border">Total Time (hrs)</TableHead>
+            <TableHead className="px-4 py-2 border">Created At</TableHead>
+            <TableHead className="px-4 py-2 border">Updated At</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {tasks && tasks.tasks ? (
-            tasks.tasks.map((task: any) => (
-              <TableRow key={task._id}>
-                <TableCell>{task._id}</TableCell>
-                <TableCell>{task.title}</TableCell>
-                <TableCell>{task.priority}</TableCell>
-                <TableCell>{task.status}</TableCell>
-                <TableCell>{new Date(task.startTime).toLocaleString()}</TableCell>
-                <TableCell>{new Date(task.endTime).toLocaleString()}</TableCell>
-                <TableCell>{task.totalTime}</TableCell>
-                <TableCell>{new Date(task.createdAt).toLocaleString()}</TableCell>
-                <TableCell>{new Date(task.updatedAt).toLocaleString()}</TableCell>
+            tasks.tasks.map((task: any, index: number) => (
+              <TableRow
+                key={task._id}
+                className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
+              >
+                <TableCell className="px-4 py-2 border">{index + 1}</TableCell>
+                <TableCell className="px-4 py-2 border">{task.title}</TableCell>
+                <TableCell className="px-4 py-2 border">{task.priority}</TableCell>
+                <TableCell className="px-4 py-2 border">{task.status}</TableCell>
+                <TableCell className="px-4 py-2 border">
+                  {new Date(task.startTime).toLocaleString()}
+                </TableCell>
+                <TableCell className="px-4 py-2 border">
+                  {new Date(task.endTime).toLocaleString()}
+                </TableCell>
+                <TableCell className="px-4 py-2 border">{task.totalTime}</TableCell>
+                <TableCell className="px-4 py-2 border">
+                  {new Date(task.createdAt).toLocaleString()}
+                </TableCell>
+                <TableCell className="px-4 py-2 border">
+                  {new Date(task.updatedAt).toLocaleString()}
+                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={9} className="text-center">
+              <TableCell colSpan={9} className="text-center px-4 py-2 border">
                 No tasks available
               </TableCell>
             </TableRow>

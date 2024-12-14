@@ -29,3 +29,19 @@ export const getTasks = async (token: string): Promise<any[]> => {
     throw error; // Re-throw the error to handle it in the calling function
   }
 };
+
+export const setTasks = async (token: string, taskData: any): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_URL}/tasks`, taskData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token to the Authorization header
+        'Content-Type': 'application/json', // Specify content type for JSON
+      },
+    });
+
+    return response.data; // Return the newly created/updated task data
+  } catch (error) {
+    console.error('Error setting tasks:', error);
+    throw error; // Re-throw the error to handle it in the calling function
+  }
+};
