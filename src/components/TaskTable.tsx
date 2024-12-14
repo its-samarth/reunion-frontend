@@ -1,51 +1,27 @@
-import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHeader,
-  TableRow,
-  TableHead,
-} from "./ui/table";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { getTasks } from "@/services/authService";
+import React, { useEffect, useState } from 'react';
+import { getTasks } from '@/services/authService';
 
-export default function TaskTable() {
-  const [taskData, setTaskData] = useState<any[]>([]);
+const TasksList = () => {
+  const [tasks, setTasks] = useState<any>(null); // Allow tasks to be null initially
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("No token found, please login first");
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token found, please login first');
 
         const fetchedTasks = await getTasks(token);
+        console.log('Fetched Tasks:', fetchedTasks); // Log the fetched object
 
-        if (fetchedTasks?.tasks && Array.isArray(fetchedTasks.tasks)) {
-          setTaskData(
-            fetchedTasks.tasks.map((task) => ({
-              id: task._id,
-              title: task.title,
-              priority: task.priority,
-              status: task.status,
-              startTime: new Date(task.startTime).toLocaleString(),
-              endTime: new Date(task.endTime).toLocaleString(),
-              totalTime: task.totalTime,
-            }))
-          );
+        if (fetchedTasks) {
+          setTasks(fetchedTasks); // Directly set the fetched object
         } else {
-          throw new Error("Invalid tasks format received");
+          throw new Error('No tasks found');
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error occurred");
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -54,83 +30,52 @@ export default function TaskTable() {
     fetchTasks();
   }, []);
 
-  const columns: ColumnDef<any>[] = [
-    {
-      accessorKey: "id",
-      header: "Task ID",
-    },
-    {
-      accessorKey: "title",
-      header: "Title",
-    },
-    {
-      accessorKey: "priority",
-      header: "Priority",
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-    },
-    {
-      accessorKey: "startTime",
-      header: "Start Time",
-    },
-    {
-      accessorKey: "endTime",
-      header: "End Time",
-    },
-    {
-      accessorKey: "totalTime",
-      header: "Total Time (hrs)",
-    },
-  ];
-
-  const table = useReactTable({
-    data: taskData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  // Render the table directly from the object
   return (
-    <div style={styles.container}>
-      <Table>
-        <TableCaption>A list of tasks with their priority and status.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <React.Fragment key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </React.Fragment>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div>
+      <h1>User Tasks</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Task ID</th>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Total Time (hrs)</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* Parse the tasks object */}
+          {tasks && tasks.tasks ? (
+            tasks.tasks.map((task: any) => (
+              <tr key={task._id}>
+                <td>{task._id}</td>
+                <td>{task.title}</td>
+                <td>{task.priority}</td>
+                <td>{task.status}</td>
+                <td>{task.startTime}</td>
+                <td>{task.endTime}</td>
+                <td>{task.totalTime}</td>
+                <td>{task.createdAt}</td>
+                <td>{task.updatedAt}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={9}>No tasks available</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
-}
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    margin: "20px auto",
-    maxWidth: "80%",
-    padding: "10px",
-  },
 };
+
+export default TasksList;
