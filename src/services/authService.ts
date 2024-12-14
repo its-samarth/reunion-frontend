@@ -45,3 +45,36 @@ export const setTasks = async (token: string, taskData: any): Promise<any> => {
     throw error; // Re-throw the error to handle it in the calling function
   }
 };
+
+export const updateTask = async (token: string, taskId: string, taskData: any): Promise<any> => {
+  try {
+    const response = await axios.put(`${API_URL}/tasks/${taskId}`, taskData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token to the Authorization header
+        'Content-Type': 'application/json', // Specify content type for JSON
+      },
+    });
+
+    return response.data; // Return the updated task data
+  } catch (error) {
+    console.error('Error updating task:', error);
+    throw error; // Re-throw the error to handle it in the calling function
+  }
+};
+
+
+export const deleteTask = async (token: string, taskId: string): Promise<any> => {
+  try {
+    const response = await axios.delete(`${API_URL}/tasks/${taskId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token to the Authorization header
+        'Content-Type': 'application/json', // Specify content type for JSON
+      },
+    });
+
+    return response.data; // Return the response data (success message, etc.)
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    throw error; // Re-throw the error to handle it in the calling function
+  }
+};

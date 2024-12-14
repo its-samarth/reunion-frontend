@@ -1,63 +1,65 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import ReactSwitch from "react-switch"; // Importing react-switch
-import { setTasks } from "@/services/authService";
+import Switch from "react-switch";
+import { updateTask } from "@/services/authService";
 
-interface AddTaskModalProps {
+interface UpdateTaskModalProps {
+  task: any;
   refreshTasks: () => void;
   onClose: () => void;
 }
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    priority: 1,
-    status: 'pending',
-    startTime: '',
-    endTime: '',
-  });
-
+const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
+  task,
+  refreshTasks,
+  onClose,
+}) => {
+  const [formData, setFormData] = useState(task);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setFormData((prevData: any) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleToggle = () => {
+    setFormData((prevData: any) => ({
+      ...prevData,
+      status: prevData.status === "Finished" ? "Pending" : "Finished",
+    }));
+  };
 
-    const token = localStorage.getItem('token');
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
+
+    const token = localStorage.getItem("token");
     if (!token) {
-      setError('No token found, please log in first.');
+      setError("No token found, please log in first.");
+      setLoading(false);
       return;
     }
 
-    // Prepare task data
-    const taskData = {
-      title: formData.title,
-      priority: formData.priority,
-      status: formData.status,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-    };
-
     try {
-      const newTask = await setTasks(token, taskData);
-      setSuccess('Task created successfully!');
-      setError(null); // Reset error if successful
-      refreshTasks(); // Refresh the task list after a new task is added
-      onClose(); // Close the modal after success
+      await updateTask(token, formData._id, formData);
+      refreshTasks();
+      onClose(); // Close modal after update
     } catch (err) {
-      setError('Failed to create task.');
-      setSuccess(null); // Reset success message if failed
+      setError("Failed to update task.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,25 +67,26 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
     <Dialog open={true} onOpenChange={() => onClose()}>
       <DialogContent
         className="p-6 w-full max-w-lg rounded-lg shadow-md"
-        style={{ backgroundColor: "rgba(255, 255, 255, 0.9)" }}
+        style={{ backgroundColor: "rgba(255, 255, 255, 0.9)" }} // Add this line for opaque white background
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold mb-4">Create New Task</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold mb-4">
+            Edit Task
+          </DialogTitle>
+          <p className="text-sm text-gray-500 mb-4">Task ID: {formData._id}</p>
         </DialogHeader>
 
         {error && <div className="text-red-500 mb-4">{error}</div>}
-        {success && <div className="text-green-500 mb-4">{success}</div>}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
           {/* Title */}
           <div>
             <Label className="text-gray-700">Title</Label>
             <Input
               type="text"
               name="title"
-              value={formData.title}
+              value={formData.title || ""}
               onChange={handleChange}
-              required
               className="border border-gray-300 rounded-md p-2"
             />
           </div>
@@ -106,11 +109,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
             <div className="flex items-center">
               <span className="mr-2">Pending</span>
               {/* React Switch */}
-              <ReactSwitch
-                checked={formData.status === "completed"}
-                onChange={(checked) => setFormData({ ...formData, status: checked ? "completed" : "pending" })}
-                offColor="#d1d5db"
-                onColor="#4f46e5"
+              <Switch
+                checked={formData.status === "Finished"}
+                onChange={handleToggle}
+                offColor="#d1d5db" // Light gray when off
+                onColor="#4f46e5" // Purple when on (Finished)
                 offHandleColor="#fff"
                 onHandleColor="#fff"
                 handleDiameter={20}
@@ -119,7 +122,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
                 uncheckedIcon={false}
                 checkedIcon={false}
               />
-              <span className="ml-2">Completed</span>
+              <span className="ml-2">Finished</span>
             </div>
           </div>
 
@@ -129,9 +132,8 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
             <Input
               type="datetime-local"
               name="startTime"
-              value={formData.startTime}
+              value={formData.startTime || ""}
               onChange={handleChange}
-              required
               className="border border-gray-300 rounded-md p-2"
             />
           </div>
@@ -142,33 +144,34 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ refreshTasks, onClose }) =>
             <Input
               type="datetime-local"
               name="endTime"
-              value={formData.endTime}
+              value={formData.endTime || ""}
               onChange={handleChange}
-              required
               className="border border-gray-300 rounded-md p-2"
             />
           </div>
+        </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end space-x-2 mt-6">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Create Task
-            </Button>
-          </div>
-        </form>
+        {/* Buttons */}
+        <div className="flex justify-end space-x-2 mt-6">
+          <Button
+            variant="outline"
+            onClick={() => onClose()}
+            disabled={loading}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-700"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {loading ? "Updating..." : "Update"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default AddTaskModal;
+export default UpdateTaskModal;
