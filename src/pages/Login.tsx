@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { login } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import backgroundImage from "../assets/backgroundImage.webp";
+
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -9,52 +11,21 @@ const Login: React.FC = () => {
   const { login: authenticate } = useAuth();
   const navigate = useNavigate();
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   try {
-  //     // Send login request to the backend
-  //     const response = await fetch(`http://localhost:5500/api/auth/login`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ email, password }),
-  //     });
-
-  //     // Handle response
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.message || "Login failed");
-  //     }
-
-  //     const { token } = await response.json();
-
-  //     // Save token to localStorage and authenticate user
-  //     localStorage.setItem("token", token);
-  //     alert("Login successful!");
-  //     navigate("/dashboard"); // Redirect to the dashboard
-  //   } catch (error: any) {
-  //     console.error(error);
-  //     alert(error.message || "An error occurred during login.");
-  //   }
-  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const token = await login(email, password);
       authenticate(token);
-      localStorage.setItem("token", token); 
+      localStorage.setItem("token", token);
       setTimeout(() => {
         alert("Login successful!");
+        navigate("/dashboard");
       }, 1000);
-       // Navigate to the dashboard after successful login
-       navigate("/dashboard");
     } catch (error) {
       console.error(error);
       setTimeout(() => {
         alert("Login failed. Please check your credentials.");
       }, 1000);
-      
     }
   };
 
@@ -63,54 +34,91 @@ const Login: React.FC = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      height: "100vh",
-      backgroundColor: "#f0f0f0",
+      height: "100vh", // Full height of the viewport
+      backgroundImage: `url(${backgroundImage})`, // Use your image
+      backgroundSize: "contain", // Ensures the image stretches to fill the screen
+      backgroundRepeat: "no-repeat", // Prevents repeating
+     
       fontFamily: "Arial, sans-serif",
+      color: "#fff",
+      position: "relative", // Needed for the overlay
     },
-    form: {
-      backgroundColor: "#fff",
-      padding: "20px",
-      borderRadius: "8px",
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+    overlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(0, 0, 0, 0.5)", // Darken the background for better contrast
+      zIndex: -1,
+    },
+    formContainer: {
+      backgroundColor: "rgba(255, 255, 255, 0.15)",
+      padding: "40px",
+      borderRadius: "12px",
+      backdropFilter: "blur(10px)",
+      boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
+      textAlign: "center",
       width: "100%",
       maxWidth: "400px",
     },
     header: {
-      textAlign: "center",
-      fontSize: "24px",
-      color: "#333",
+      fontSize: "30px",
+      fontWeight: "bold",
+      color: " #000000",
       marginBottom: "20px",
     },
     input: {
       width: "100%",
       padding: "12px",
       fontSize: "16px",
-      border: "1px solid #ccc",
-      borderRadius: "4px",
-      outline: "none",
+      border: "none",
+      borderRadius: "6px",
       marginBottom: "15px",
-      boxSizing: "border-box" as "border-box",
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      color: "#333",
+      outline: "none",
+      transition: "box-shadow 0.3s ease",
+    },
+    inputFocus: {
+      boxShadow: "0 0 8px rgba(138, 43, 226, 0.6)",
     },
     button: {
       width: "100%",
       padding: "14px",
-      backgroundColor: "#007BFF" as string,  // Explicit string type
+      backgroundColor: "#6a0dad",
       color: "white",
       border: "none",
-      borderRadius: "4px",
+      borderRadius: "6px",
       fontSize: "16px",
       cursor: "pointer",
       transition: "background-color 0.3s ease",
     },
     buttonHover: {
-      backgroundColor: "#0056b3" as string,  // Explicit string type
+      backgroundColor: "#4b0082",
+    },
+    footer: {
+      marginTop: "15px",
+      fontSize: "14px",
+      color: "#000000",
+    },
+    link: {
+      color: "#a25cd1",
+      textDecoration: "none",
+      cursor: "pointer",
+      fontWeight: "bold",
+      transition: "color 0.3s ease",
+    },
+    linkHover: {
+      color: "#ffffff",
     },
   };
 
   return (
     <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h2 style={styles.header}>Login</h2>
+      <div style={styles.overlay}></div>
+      <form onSubmit={handleSubmit} style={styles.formContainer}>
+        <h2 style={styles.header}>Welcome Back!</h2>
         <input
           type="email"
           placeholder="Email"
@@ -127,13 +135,18 @@ const Login: React.FC = () => {
           style={styles.input}
           required
         />
-        <button
-          type="submit"
-          style={styles.button}
-        
-        >
+        <button type="submit" style={styles.button}>
           Login
         </button>
+        <div style={styles.footer}>
+          Don’t have an account?{" "}
+          <span
+            style={styles.link}
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </div>
       </form>
     </div>
   );
