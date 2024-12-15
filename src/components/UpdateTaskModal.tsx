@@ -37,7 +37,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
   const handleToggle = () => {
     setFormData((prevData: any) => ({
       ...prevData,
-      status: prevData.status === "Finished" ? "Pending" : "Finished",
+      status: prevData.status === "finished" ? "pending" : "finished",
     }));
   };
 
@@ -128,7 +128,7 @@ const UpdateTaskModal: React.FC<UpdateTaskModalProps> = ({
               <span className="mr-2">Pending</span>
               {/* React Switch */}
               <Switch
-                checked={formData.status === "Finished"}
+                checked={formData.status === "finished"}
                 onChange={handleToggle}
                 offColor="#d1d5db" // Light gray when off
                 onColor="#4f46e5" // Purple when on (Finished)

@@ -37,7 +37,7 @@ const Summary: React.FC = () => {
   // Fetch tasks on initial load
   useLayoutEffect(() => {
     refreshTasks();
-  }, []);
+  }, [loading]);
 
   // Fetch dashboard data when tasks are available
   useLayoutEffect(() => {
