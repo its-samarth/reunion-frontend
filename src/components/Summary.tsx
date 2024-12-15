@@ -53,7 +53,7 @@ const Summary: React.FC = () => {
             setError("No token found, please log in first.");
           }
         } catch (err) {
-          setError("Error fetching dashboard data.");
+          setError("Start adding tasks in Tasks List!.");
         }
       };
 
@@ -126,7 +126,7 @@ const Summary: React.FC = () => {
               ) : (
                 <>
                   <CardTitle className="text-2xl text-purple-600">
-                    {dashboardData?.averageCompletionTime ?? "N/A"}
+                    {dashboardData?.averageCompletionTime ?? "N/A"} hrs
                   </CardTitle>
                   <CardDescription>
                     Average time per completed task

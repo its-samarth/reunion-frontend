@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import backgroundImage from "../assets/bg2.jpeg"
+import { register } from "@/services/authService";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -10,41 +11,18 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      // Send registration request to the backend
-      const response = await fetch("http://localhost:5500/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
+      e.preventDefault();
+      try {
+        const token = await register(email, password);
+        authenticate(token);
+        localStorage.setItem("token", token);
+          alert("Login successful!");
+          navigate("/dashboard");   
+      } catch (error) {
+        console.error(error);
+          alert("Login failed , Already Registered User ."+error);
       }
-
-      const { token } = await response.json();
-
-      // Save token to localStorage and authenticate user
-      localStorage.setItem("token", token);
-      authenticate(token);
-
-      setTimeout(() => {
-        alert("Registration successful!");
-      }, 1000);
-
-      // Redirect to dashboard
-      navigate("/dashboard");
-    } catch (error: any) {
-      console.error(error);
-      setTimeout(() => {
-        alert(error.message || "An error occurred during registration.");
-      }, 1000);
-    }
-  };
+    };
 
   const styles: { [key: string]: React.CSSProperties } = {
     container: {
@@ -134,7 +112,7 @@ const Register: React.FC = () => {
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Password (length > 6 character)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={styles.input}

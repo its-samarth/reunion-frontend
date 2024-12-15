@@ -3,6 +3,7 @@ import { login } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import backgroundImage from "../assets/backgroundImage.webp";
+import { log } from "console";
 
 
 const Login: React.FC = () => {
@@ -15,17 +16,15 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       const token = await login(email, password);
+      console.log(token);
+      
       authenticate(token);
       localStorage.setItem("token", token);
-      setTimeout(() => {
         alert("Login successful!");
-        navigate("/dashboard");
-      }, 1000);
+        navigate("/dashboard");   
     } catch (error) {
       console.error(error);
-      setTimeout(() => {
         alert("Login failed. Please check your credentials.");
-      }, 1000);
     }
   };
 

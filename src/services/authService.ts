@@ -3,17 +3,27 @@ import axios from "axios";
 const API_URL = "https://reunion-backend-ibh5.onrender.com/api";
 
 export const login = async (email: string, password: string): Promise<string> => {
+  try {
   const response = await axios.post(`${API_URL}/auth/login`, { email, password });
   return response.data.token; // Return JWT token
+  } catch (error) {
+    console.error("Error during login:", error);
+    throw error;
+  }
 };
 
-export const register = async (
-  email: string,
-  password: string
-): Promise<string> => {
-  const response = await axios.post(`${API_URL}auth/register`, { email, password });
-  return response.data.token; // Return JWT token
+export const register = async (email: string, password: string): Promise<string> => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/register`, { email, password });
+    console.log("Registration successful:", response.data);
+    return response.data.token; // Return JWT token
+    
+  } catch (error) {
+    console.error('Error  in registration', error);
+    throw error; // Re-throw the error to handle it in the calling function
+  }
 };
+
 
 export const getTasks = async (token: string): Promise<any[]> => {
   try {
