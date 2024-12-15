@@ -1,6 +1,8 @@
 import { getDashboardData, getTasks } from "@/services/authService";
 import React, { useState, useEffect, useLayoutEffect } from "react";
 import SummaryTable from "./SummaryTable"; // Assuming this is another table component
+import { Skeleton } from "./ui/skeleton";
+import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 const Summary: React.FC = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -59,75 +61,145 @@ const Summary: React.FC = () => {
     }
   }, [tasks]);
 
-  // Handle loading and error states
-  if (loading) {
-    return <div>Loading tasks...</div>;
-  }
-
   if (error) {
     return <div>{error}</div>;
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.section}>
-        <h2 style={styles.header}>Summary</h2>
-        <div style={styles.row}>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {dashboardData?.totalTasks || "N/A"}
-            </span>
-            <span>Total tasks</span>
-          </div>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {dashboardData?.completedPercentage !== undefined
-                ? dashboardData?.completedPercentage
-                : "N/A"}
-            </span>
-            <span>Tasks completed (%)</span>
-          </div>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {dashboardData?.pendingPercentage || "N/A"}
-            </span>
-            <span>Tasks pending (%)</span>
-          </div>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {dashboardData?.averageCompletionTime !== undefined
-                ? dashboardData?.averageCompletionTime
-                : "N/A"}
-            </span>
-            <span>Average time per completed task</span>
-          </div>
+    <div className="p-6 font-sans text-gray-900">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold mb-4">Summary</h2>
+        <div className="flex flex-wrap justify-between gap-6">
+          {/* Total Tasks Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                    {dashboardData?.totalTasks ?? "N/A"}
+                  </CardTitle>
+                  <CardDescription>Total tasks</CardDescription>
+                </>
+              )}
+            </CardHeader>
+          </Card>
+
+          {/* Tasks Completed Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                    {dashboardData?.completedPercentage ?? "N/A"}
+                  </CardTitle>
+                  <CardDescription>Tasks completed (%)</CardDescription>
+                </>
+              )}
+            </CardHeader>
+          </Card>
+
+          {/* Tasks Pending Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                    {dashboardData?.pendingPercentage ?? "N/A"}
+                  </CardTitle>
+                  <CardDescription>Tasks pending (%)</CardDescription>
+                </>
+              )}
+            </CardHeader>
+          </Card>
+
+          {/* Average Completion Time Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                    {dashboardData?.averageCompletionTime ?? "N/A"}
+                  </CardTitle>
+                  <CardDescription>
+                    Average time per completed task
+                  </CardDescription>
+                </>
+              )}
+            </CardHeader>
+          </Card>
         </div>
       </div>
 
-      <div style={styles.section}>
-        <h2 style={styles.header}>Pending task summary</h2>
-        <div style={styles.row}>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {/* Assuming pendingTaskSummary will be available here */}
-              {dashboardData?.pendingTaskSummary?.pendingTasks || "N/A"}
-            </span>
-            <span>Pending tasks</span>
-          </div>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {dashboardData?.pendingTaskSummary?.totalTimeLapsed || "N/A"}
-            </span>
-            <span>Total time lapsed</span>
-          </div>
-          <div style={styles.metric}>
-            <span style={styles.metricValue}>
-              {dashboardData?.pendingTaskSummary?.totalTimeToFinish || "N/A"}
-            </span>
-            <span>Total time to finish</span>
-            <div></div>
-            <span style={styles.note}>estimated based on endtime</span>
-          </div>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold mb-4">Pending task summary</h2>
+        <div className="flex flex-wrap justify-between gap-6">
+          {/* Pending Tasks Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                    {dashboardData?.pendingTasks ?? "N/A"}
+                  </CardTitle>
+                  <CardDescription>Pending tasks</CardDescription>
+                </>
+              )}
+            </CardHeader>
+          </Card>
+
+          {/* Total Time Lapsed Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                    {dashboardData?.timeLapsedByPriority[1]
+                      ? `${Math.round(
+                          dashboardData?.timeLapsedByPriority[1]
+                        )} hrs`
+                      : "N/A"}
+                  </CardTitle>
+
+                  <CardDescription>Total time lapsed</CardDescription>
+                </>
+              )}
+            </CardHeader>
+          </Card>
+
+          {/* Total Time to Finish Card */}
+          <Card className="w-full sm:w-1/4 shadow-md">
+            <CardHeader>
+              {loading ? (
+                <Skeleton className="h-6 w-24 rounded-full" />
+              ) : (
+                <>
+                  <CardTitle className="text-2xl text-purple-600">
+                  {dashboardData?.totalTimeToFinishByPriority[1]
+                      ? `${Math.round(
+                          dashboardData?.totalTimeToFinishByPriority[1]
+                        )} hrs`
+                      : "0"}
+                  </CardTitle>
+                  <CardDescription>Total time to finish</CardDescription>
+                </>
+              )}
+            </CardHeader>
+            <div className="p-4 text-center text-sm text-gray-500">
+              <span>estimated based on endtime</span>
+            </div>
+          </Card>
         </div>
       </div>
 

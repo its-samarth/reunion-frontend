@@ -41,6 +41,23 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    // Validate Start Time and End Time
+    const start = new Date(formData.startTime);
+    const end = new Date(formData.endTime);
+    const currentTime = new Date();
+    // Validation to check if End Time is greater than Start Time
+
+    if (end <= start) {
+      setError("End Time must be greater than Start Time.");
+      return; // Prevent form submission if validation fails
+    }
+
+    // Validation to check if End Time is not greater than the current time
+    if (end > currentTime) {
+      setError("End Time must not be greater than the current time.");
+      return; // Prevent form submission if validation fails
+    }
+
 
     const token = localStorage.getItem("token");
     if (!token) {

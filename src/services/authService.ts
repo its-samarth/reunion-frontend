@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5500/api";
+const API_URL = "https://reunion-backend-ibh5.onrender.com/api";
 
 export const login = async (email: string, password: string): Promise<string> => {
   const response = await axios.post(`${API_URL}/auth/login`, { email, password });
